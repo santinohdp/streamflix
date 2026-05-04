@@ -155,7 +155,7 @@ td{padding:13px 14px;font-size:13px;vertical-align:middle}
     <div class="logo-sub">Panel de Administración</div>
     <div class="field">
       <label>URL del Backend</label>
-      <input type="text" id="l-api" placeholder="http://localhost:5000" value="http://localhost:5000">
+      <input type="text" id="l-api" placeholder="http://localhost:5000">
     </div>
     <div class="field">
       <label>Clave de Administrador</label>
@@ -292,7 +292,7 @@ const TMDB_KEY  = localStorage.getItem('sf_tmdb_key') || '';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const TMDB_IMG  = 'https://image.tmdb.org/t/p';
 
-let API_URL    = 'http://localhost:5000';
+let API_URL    = location.hostname === 'localhost' ? 'http://localhost:5000' : location.origin;
 let ADMIN_KEY  = '';
 let extendUser = '';
 
@@ -301,6 +301,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('sf_tmdb_key');
   const el = document.getElementById('l-tmdb');
   if (saved && el) el.value = saved;
+  // Auto-fill backend URL
+  const apiInput = document.getElementById('l-api');
+  if (apiInput) apiInput.value = API_URL;
 });
 let contentType = 'movie';
 let editingId   = null;
