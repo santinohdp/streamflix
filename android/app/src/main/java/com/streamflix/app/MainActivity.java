@@ -8,6 +8,9 @@ import android.view.WindowManager;
 
 public class MainActivity extends BridgeActivity {
 
+    // ← URL de tu servidor en Railway
+    private static final String SERVER_URL = "https://streamflix-production-9559.up.railway.app/app";
+
     private static final String[] BLOCKED = {
         "doubleclick.net","googlesyndication.com","googletagmanager.com",
         "googleadservices.com","google-analytics.com","adservice.google.com",
@@ -42,38 +45,75 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         WebView wv = getBridge().getWebView();
+        wv.getSettings().setJavaScriptEnabled(true);
+        wv.getSettings().setDomStorageEnabled(true);
         wv.getSettings().setMediaPlaybackRequiresUserGesture(false);
         wv.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        wv.setWebViewClient(new WebViewClient(){
+        wv.getSettings().setUserAgentString(
+            "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+        );
+
+        wv.setWebViewClient(new WebViewClient() {
             @Override
-            public WebResourceResponse shouldInterceptRequest(WebView v, WebResourceRequest r){
-                String url=r.getUrl().toString().toLowerCase();
-                for(String b:BLOCKED){if(url.contains(b))return new WebResourceResponse("text/plain","utf-8",new java.io.ByteArrayInputStream("".getBytes()));}
-                if(url.contains("/ads/")||url.contains("popunder")||url.contains("tracker")||url.contains("pixel.")||url.contains("beacon"))
-                    return new WebResourceResponse("text/plain","utf-8",new java.io.ByteArrayInputStream("".getBytes()));
+            public WebResourceResponse shouldInterceptRequest(WebView v, WebResourceRequest r) {
+                String url = r.getUrl().toString().toLowerCase();
+                for (String b : BLOCKED) {
+                    if (url.contains(b))
+                        return new WebResourceResponse("text/plain","utf-8",
+                            new java.io.ByteArrayInputStream("".getBytes()));
+                }
+                if (url.contains("/ads/") || url.contains("popunder") ||
+                    url.contains("tracker") || url.contains("pixel.") || url.contains("beacon"))
+                    return new WebResourceResponse("text/plain","utf-8",
+                        new java.io.ByteArrayInputStream("".getBytes()));
                 return null;
             }
+
             @Override
-            public void onPageFinished(WebView v,String url){
-                super.onPageFinished(v,url);
-                v.evaluateJavascript(JS,null);
+            public void onPageFinished(WebView v, String url) {
+                super.onPageFinished(v, url);
+                v.evaluateJavascript(JS, null);
             }
         });
-        wv.setWebChromeClient(new WebChromeClient(){
-            private View fv; private CustomViewCallback fc;
-            @Override public boolean onCreateWindow(WebView v,boolean d,boolean u,android.os.Message m){return false;}
-            @Override public void onShowCustomView(View v,CustomViewCallback c){
-                fv=v;fc=c;
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-                ((android.widget.FrameLayout)getWindow().getDecorView()).addView(v,new android.widget.FrameLayout.LayoutParams(-1,-1));
+
+        wv.setWebChromeClient(new WebChromeClient() {
+            private View fv;
+            private CustomViewCallback fc;
+
+            @Override
+            public boolean onCreateWindow(WebView v, boolean d, boolean u, android.os.Message m) {
+                return false;
             }
-            @Override public void onHideCustomView(){
-                if(fv==null)return;
-                ((android.widget.FrameLayout)getWindow().getDecorView()).removeView(fv);
-                fv=null;fc.onCustomViewHidden();
+
+            @Override
+            public void onShowCustomView(View v, CustomViewCallback c) {
+                fv = v; fc = c;
+                getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_FULLSCREEN |
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
+                ((android.widget.FrameLayout) getWindow().getDecorView())
+                    .addView(v, new android.widget.FrameLayout.LayoutParams(-1, -1));
             }
-            @Override public void onPermissionRequest(PermissionRequest r){r.grant(r.getResources());}
+
+            @Override
+            public void onHideCustomView() {
+                if (fv == null) return;
+                ((android.widget.FrameLayout) getWindow().getDecorView()).removeView(fv);
+                fv = null;
+                fc.onCustomViewHidden();
+            }
+
+            @Override
+            public void onPermissionRequest(PermissionRequest r) {
+                r.grant(r.getResources());
+            }
         });
+
+        // Cargar directamente la URL de Railway en vez del localhost interno
+        wv.loadUrl(SERVER_URL);
     }
 }
