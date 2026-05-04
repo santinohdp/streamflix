@@ -356,6 +356,12 @@ let updateUrl  = null;
 // ════════════════════════════════════════════
 
 window.onload = async () => {
+  // Clear stale localhost URL from storage when running in production
+  const storedApi = localStorage.getItem('sf_api');
+  if (storedApi && storedApi.includes('localhost') && location.hostname !== 'localhost') {
+    localStorage.removeItem('sf_api');
+    API_URL = location.origin;
+  }
   document.getElementById('inp-api').value = API_URL;
   if (token) {
     const ok = await verifyToken();
@@ -399,7 +405,7 @@ async function login() {
       showLoginErr(d.message || 'Error al iniciar sesión');
     }
   } catch(e) {
-    showLoginErr(`No se pudo conectar al servidor: ${API_URL}`);
+    showLoginErr(`No se pudo conectar a: ${API_URL}\n¿Está corriendo python server.py?`);
   } finally {
     btn.classList.remove('loading'); btn.disabled = false;
   }
