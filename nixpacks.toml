@@ -1,5 +1,0 @@
-[phases.build]
-cmds = ["pip install flask flask-cors"]
-
-[start]
-cmd = "python server.py"
