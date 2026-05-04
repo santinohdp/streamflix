@@ -342,7 +342,7 @@ const linksCache = {};
 //  ESTADO GLOBAL
 // ════════════════════════════════════════════
 
-let API_URL    = localStorage.getItem('sf_api') || 'http://localhost:5000';
+let API_URL    = localStorage.getItem('sf_api') || (location.hostname === 'localhost' ? 'http://localhost:5000' : location.origin);
 let token      = localStorage.getItem('sf_token');
 let userName   = localStorage.getItem('sf_user');
 let heroItem   = null;
@@ -356,7 +356,7 @@ let updateUrl  = null;
 // ════════════════════════════════════════════
 
 window.onload = async () => {
-  document.getElementById('inp-api').value = API_URL || 'http://localhost:5000';
+  document.getElementById('inp-api').value = API_URL || location.origin;
   if (token) {
     const ok = await verifyToken();
     if (ok) { initApp(); return; }
@@ -847,7 +847,7 @@ function deactivateAdBlocker() {
 function blockRedirectClicks(e) {
   const a = e.target.closest('a');
   if (a && a.href && a.target === '_blank') {
-    const safe = ['themoviedb', 'image.tmdb', 'localhost'];
+    const safe = ['themoviedb', 'image.tmdb', 'localhost', 'railway.app', location.hostname];
     if (!safe.some(d => a.href.includes(d))) {
       e.preventDefault(); e.stopPropagation();
     }
