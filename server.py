@@ -1,11 +1,3 @@
-"""
-StreamFlix Backend v2 - Login + Contenido + Sirve la app web
-Requisitos: pip install flask flask-cors
-Ejecutar:   python server.py
-Luego abrí: http://localhost:5000/app    (la app)
-            http://localhost:5000/panel  (el panel admin)
-"""
-
 from flask import Flask, request, jsonify, send_file, redirect
 from flask_cors import CORS
 import json, os, hashlib, secrets
@@ -16,29 +8,9 @@ CORS(app)
 
 USERS_FILE   = "users.json"
 CONTENT_FILE = "content.json"
-ADMIN_KEY    = "admin1234"       # ← CAMBIÁ ESTO
+ADMIN_KEY    = "admin1234"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# ═══════════════════════════════════════════
-#  SERVIR ARCHIVOS HTML
-# ═══════════════════════════════════════════
-
-@app.route("/")
-def index():
-    return redirect("/app")
-
-@app.route("/app")
-def serve_app():
-    return send_file(os.path.join(BASE_DIR, "app.html"))
-
-@app.route("/panel")
-def serve_panel():
-    return send_file(os.path.join(BASE_DIR, "panel.html"))
-
-# ═══════════════════════════════════════════
-#  BASE DE DATOS
-# ═══════════════════════════════════════════
 
 def load_users():
     if not os.path.exists(USERS_FILE):
@@ -66,9 +38,17 @@ def hash_pw(pw):
 def check_admin(req):
     return req.headers.get("X-Admin-Key") == ADMIN_KEY
 
-# ═══════════════════════════════════════════
-#  AUTH — PARA LA APP
-# ═══════════════════════════════════════════
+@app.route("/")
+def index():
+    return redirect("/app")
+
+@app.route("/app")
+def serve_app():
+    return send_file(os.path.join(BASE_DIR, "app.html"))
+
+@app.route("/panel")
+def serve_panel():
+    return send_file(os.path.join(BASE_DIR, "panel.html"))
 
 @app.route("/api/login", methods=["POST"])
 def login():
@@ -107,10 +87,6 @@ def verify():
 def version():
     return jsonify({"version": "1.0.0", "apk_url": "", "message": ""})
 
-# ═══════════════════════════════════════════
-#  CONTENIDO — PARA LA APP
-# ═══════════════════════════════════════════
-
 @app.route("/api/links/<media_type>/<int:tmdb_id>", methods=["GET"])
 def get_links(media_type, tmdb_id):
     db = load_content()
@@ -124,14 +100,7 @@ def get_links(media_type, tmdb_id):
 @app.route("/api/catalog", methods=["GET"])
 def get_catalog():
     db = load_content()
-    return jsonify({
-        "movie_ids": list(db["movies"].keys()),
-        "serie_ids": list(db["series"].keys())
-    })
-
-# ═══════════════════════════════════════════
-#  ADMIN — USUARIOS
-# ═══════════════════════════════════════════
+    return jsonify({"movie_ids": list(db["movies"].keys()), "serie_ids": list(db["series"].keys())})
 
 @app.route("/admin/users", methods=["GET"])
 def list_users():
@@ -193,37 +162,33 @@ def extend_user(username):
     save_users(db)
     return jsonify({"success": True})
 
-# ═══════════════════════════════════════════
-#  ADMIN — CONTENIDO
-# ═══════════════════════════════════════════
-
 @app.route("/admin/content", methods=["GET"])
 def list_content():
     if not check_admin(request): return jsonify({"error": "No autorizado"}), 401
     db = load_content()
-    movies = [{"tmdb_id": k, "type": "movie",   **v} for k, v in db["movies"].items()]
-    series = [{"tmdb_id": k, "type": "series",  **v} for k, v in db["series"].items()]
+    movies = [{"tmdb_id": k, "type": "movie", **v} for k, v in db["movies"].items()]
+    series = [{"tmdb_id": k, "type": "series", **v} for k, v in db["series"].items()]
     return jsonify({"content": movies + series})
 
 @app.route("/admin/content", methods=["POST"])
 def save_item():
     if not check_admin(request): return jsonify({"error": "No autorizado"}), 401
     data = request.json or {}
-    tmdb_id    = str(data.get("tmdb_id", ""))
+    tmdb_id = str(data.get("tmdb_id", ""))
     media_type = data.get("type", "movie")
-    title      = data.get("title", "")
+    title = data.get("title", "")
     if not tmdb_id or not title:
         return jsonify({"error": "tmdb_id y title requeridos"}), 400
     db = load_content()
     section = "movies" if media_type == "movie" else "series"
     db[section][tmdb_id] = {
-        "title": title, "year": data.get("year",""),
-        "poster": data.get("poster",""),
+        "title": title, "year": data.get("year", ""),
+        "poster": data.get("poster", ""),
         "links": data.get("links", []),
         "updated": datetime.now().isoformat()
     }
     save_content(db)
-    return jsonify({"success": True, "message": f"'{title}' guardado con {len(data.get('links',[]))} link(s)"})
+    return jsonify({"success": True, "message": f"'{title}' guardado"})
 
 @app.route("/admin/content/<media_type>/<tmdb_id>", methods=["GET"])
 def get_item(media_type, tmdb_id):
@@ -244,13 +209,6 @@ def delete_item(media_type, tmdb_id):
     save_content(db)
     return jsonify({"success": True})
 
-# ═══════════════════════════════════════════
-
 if __name__ == "__main__":
-    print("\n" + "="*50)
-    print("  StreamFlix corriendo!")
-    print("  App:   http://localhost:5000/app")
-    print("  Panel: http://localhost:5000/panel")
-    print(f"  Clave admin: {ADMIN_KEY}")
-    print("="*50 + "\n")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
