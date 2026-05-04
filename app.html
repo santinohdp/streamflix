@@ -356,7 +356,7 @@ let updateUrl  = null;
 // ════════════════════════════════════════════
 
 window.onload = async () => {
-  document.getElementById('inp-api').value = API_URL || location.origin;
+  document.getElementById('inp-api').value = API_URL;
   if (token) {
     const ok = await verifyToken();
     if (ok) { initApp(); return; }
@@ -399,7 +399,7 @@ async function login() {
       showLoginErr(d.message || 'Error al iniciar sesión');
     }
   } catch(e) {
-    showLoginErr(`No se pudo conectar a: ${API_URL}\n¿Está corriendo python server.py?`);
+    showLoginErr(`No se pudo conectar al servidor: ${API_URL}`);
   } finally {
     btn.classList.remove('loading'); btn.disabled = false;
   }
@@ -847,7 +847,7 @@ function deactivateAdBlocker() {
 function blockRedirectClicks(e) {
   const a = e.target.closest('a');
   if (a && a.href && a.target === '_blank') {
-    const safe = ['themoviedb', 'image.tmdb', 'localhost', 'railway.app', location.hostname];
+    const safe = ['themoviedb', 'image.tmdb', 'localhost'];
     if (!safe.some(d => a.href.includes(d))) {
       e.preventDefault(); e.stopPropagation();
     }
