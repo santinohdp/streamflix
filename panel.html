@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StreamFlix — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060810;--bg2:#0b0f1a;--surface:#111827;--surface2:#1a2235;
+  --border:#1f2d44;--accent:#e50914;--accent2:#ff3340;--gold:#f5c518;
+  --text:#edf0f7;--muted:#4a5878;--green:#10b981;--red:#ef4444;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* ── LOGIN ── */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse 100% 60% at 50% -10%,#1c040a,var(--bg) 60%)}
+.login-box{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--accent);padding:44px 36px;width:100%;max-width:380px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:1px;text-align:center;margin-bottom:4px}
+.logo span{color:var(--accent)}
+.logo-sub{text-align:center;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:32px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-weight:600}
+.field input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--accent)}
+.field input::placeholder{color:var(--muted)}
+.btn{background:var(--accent);color:#fff;border:none;padding:13px 20px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;cursor:pointer;transition:background .2s}
+.btn:hover{background:var(--accent2)}
+.btn:active{transform:scale(.98)}
+.btn.full{width:100%}
+.btn.outline{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:0}
+.btn.outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn.green-btn{background:#065f46}
+.btn.green-btn:hover{background:var(--green)}
+.btn.red-btn{background:#450a0a}
+.btn.red-btn:hover{background:var(--red)}
+.btn.sm{padding:6px 14px;font-size:12px;font-family:'DM Sans',sans-serif;letter-spacing:0;font-weight:600}
+.login-err{display:none;background:#1a0508;border:1px solid #5c1a1f;color:#f87171;padding:11px 14px;font-size:13px;margin-top:12px}
+
+/* ── LAYOUT ── */
+#app{display:none;min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px}
+.header-logo span{color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:10px}
+.api-badge{font-size:11px;color:var(--muted);background:var(--bg2);border:1px solid var(--border);padding:4px 10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Sidebar + main */
+.layout{display:flex;min-height:calc(100vh - 58px)}
+.sidebar{width:200px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);padding:20px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;color:var(--muted);cursor:pointer;font-size:14px;font-weight:500;transition:all .2s;border-left:3px solid transparent}
+.nav-item:hover{color:var(--text);background:var(--surface)}
+.nav-item.active{color:var(--text);background:var(--surface);border-left-color:var(--accent)}
+.nav-icon{font-size:18px;width:22px;text-align:center}
+.main{flex:1;padding:28px;overflow-y:auto}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat{background:var(--surface);border:1px solid var(--border);padding:18px 22px;position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.stat.s1::after{background:var(--accent)}
+.stat.s2::after{background:var(--green)}
+.stat.s3::after{background:var(--gold)}
+.stat.s4::after{background:#3b82f6}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:1;margin-bottom:4px}
+.stat-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+
+/* Section header */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.5px}
+.sec-actions{display:flex;gap:8px}
+
+/* Table */
+.table-wrap{background:var(--surface);border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--bg2);border-bottom:1px solid var(--border)}
+th{padding:11px 14px;text-align:left;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:400}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+td{padding:13px 14px;font-size:13px;vertical-align:middle}
+.badge{display:inline-block;padding:3px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.badge.active{background:#064e3b;color:#6ee7b7}
+.badge.inactive{background:#1f2937;color:var(--muted)}
+.badge.expired{background:#450a0a;color:#fca5a5}
+.badge.movie{background:#1e3a5f;color:#93c5fd}
+.badge.series{background:#3b1f5f;color:#c4b5fd}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.empty-row td{text-align:center;padding:50px;color:var(--muted);font-size:13px}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);width:100%;max-width:620px;position:relative;padding:32px}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.5px;margin-bottom:24px}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal-footer{display:flex;gap:10px;margin-top:24px}
+
+/* Form fields in modal */
+.mfield{margin-bottom:16px}
+.mfield label{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-weight:600}
+.mfield input,.mfield select,.mfield textarea{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{border-color:var(--accent)}
+.mfield input::placeholder,.mfield textarea::placeholder{color:var(--muted)}
+.mfield select option{background:var(--surface)}
+.mfield textarea{resize:vertical;min-height:80px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* TMDB lookup */
+.tmdb-row{display:flex;gap:8px;margin-bottom:16px}
+.tmdb-row input{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.tmdb-row input:focus{border-color:var(--accent)}
+.tmdb-preview{display:none;background:var(--bg2);border:1px solid var(--border);padding:12px;margin-bottom:16px;display:none;align-items:center;gap:12px}
+.tmdb-preview.show{display:flex}
+.tmdb-thumb{width:50px;height:75px;object-fit:cover;background:var(--surface)}
+.tmdb-info .tmdb-name{font-weight:600;font-size:14px;margin-bottom:4px}
+.tmdb-info .tmdb-meta{font-size:12px;color:var(--muted)}
+
+/* Links section */
+.links-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.links-title{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.link-item{background:var(--bg2);border:1px solid var(--border);padding:12px;margin-bottom:8px;position:relative}
+.link-item-row{display:grid;grid-template-columns:1fr 1fr 1fr 36px;gap:8px;align-items:center}
+.link-item input,.link-item select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.link-item input:focus,.link-item select:focus{border-color:var(--accent)}
+.link-item select option{background:var(--surface)}
+.link-url-row{margin-top:8px}
+.link-url-row input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none}
+.link-url-row input:focus{border-color:var(--accent)}
+.remove-link{background:var(--accent);color:#fff;border:none;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.remove-link:hover{background:var(--accent2)}
+.no-links{text-align:center;padding:20px;color:var(--muted);font-size:13px;background:var(--bg2);border:1px dashed var(--border)}
+
+/* Spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toast */
+#toast{position:fixed;bottom:28px;right:28px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);padding:13px 18px;font-size:13px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;max-width:320px}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.err{border-left-color:var(--accent)}
+
+@media(max-width:768px){.stats{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}.field-row,.field-row3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="logo">Stream<span>Flix</span></div>
+    <div class="logo-sub">Panel de Administración</div>
+    <div class="field">
+      <label>URL del Backend</label>
+      <input type="text" id="l-api" placeholder="http://localhost:5000" value="http://localhost:5000">
+    </div>
+    <div class="field">
+      <label>Clave de Administrador</label>
+      <input type="password" id="l-key" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="field">
+      <label>API Key de TMDB <span style="color:var(--muted);font-size:10px;letter-spacing:0;text-transform:none;font-weight:400">(themoviedb.org/settings/api)</span></label>
+      <input type="text" id="l-tmdb" placeholder="tu_api_key_de_tmdb" value="" autocomplete="off" spellcheck="false" oninput="" onfocus="this.value=this.value||localStorage.getItem('sf_tmdb_key')||''"> 
+    </div>
+    <button class="btn full" onclick="doLogin()">INGRESAR AL PANEL</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ══ APP ═════════════════════════════════ -->
+<div id="app">
+  <header>
+    <div class="header-logo">Stream<span>Flix</span> <span style="font-size:13px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:0">Admin</span></div>
+    <div class="header-right">
+      <div class="api-badge" id="api-badge"></div>
+      <button class="btn outline" onclick="doLogout()">Salir</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('users',this)"><span class="nav-icon">👥</span> Usuarios</div>
+      <div class="nav-item" onclick="showPage('movies',this)"><span class="nav-icon">🎬</span> Películas</div>
+      <div class="nav-item" onclick="showPage('series',this)"><span class="nav-icon">📺</span> Series</div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main" id="main-content">
+      <!-- Se inyecta dinámicamente -->
+    </main>
+  </div>
+</div>
+
+<!-- ══ MODAL USUARIO ══════════════════════ -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('user-modal')">✕</button>
+    <div class="modal-title">Nuevo usuario</div>
+    <div class="field-row">
+      <div class="mfield"><label>Usuario</label><input type="text" id="u-username" placeholder="juan123" autocapitalize="none"></div>
+      <div class="mfield"><label>Nombre visible</label><input type="text" id="u-display" placeholder="Juan García"></div>
+    </div>
+    <div class="mfield"><label>Contraseña</label><input type="password" id="u-password" placeholder="Mínimo 6 caracteres"></div>
+    <div class="mfield"><label>Duración (días) — Vacío = sin vencimiento</label><input type="number" id="u-days" placeholder="ej: 30"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="createUser()">Crear usuario</button>
+      <button class="btn outline" onclick="closeModal('user-modal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL EXTENDER ════════════════════ -->
+<div class="modal-overlay" id="extend-modal">
+  <div class="modal" style="max-width:360px">
+    <button class="modal-close" onclick="closeModal('extend-modal')">✕</button>
+    <div class="modal-title">Extender acceso</div>
+    <div class="mfield"><label>Días a agregar</label><input type="number" id="ext-days" value="30" min="1"></div>
+    <div class="modal-footer">
+      <button class="btn green-btn" onclick="doExtend()">Extender</button>
+      <button class="btn outline" onclick="closeModal('extend-modal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CONTENIDO ═══════════════════ -->
+<div class="modal-overlay" id="content-modal">
+  <div class="modal" style="max-width:680px">
+    <button class="modal-close" onclick="closeModal('content-modal')">✕</button>
+    <div class="modal-title" id="content-modal-title">Agregar Película</div>
+
+    <!-- Búsqueda TMDB -->
+    <div class="mfield">
+      <label>Buscar en TMDB (ponés el ID o buscás el nombre)</label>
+      <div class="tmdb-row">
+        <input type="text" id="tmdb-search" placeholder="Ej: 550 — o — Fight Club" onkeydown="if(event.key==='Enter')tmdbSearch()">
+        <button class="btn" onclick="tmdbSearch()">Buscar</button>
+      </div>
+    </div>
+
+    <!-- Preview TMDB -->
+    <div class="tmdb-preview" id="tmdb-preview">
+      <img class="tmdb-thumb" id="tmdb-thumb" src="" alt="">
+      <div class="tmdb-info">
+        <div class="tmdb-name" id="tmdb-pname"></div>
+        <div class="tmdb-meta" id="tmdb-pmeta"></div>
+      </div>
+    </div>
+
+    <!-- Resultados de búsqueda por nombre -->
+    <div id="tmdb-results" style="margin-bottom:14px"></div>
+
+    <!-- Campos del item -->
+    <div id="content-fields" style="display:none">
+      <input type="hidden" id="c-tmdb-id">
+      <input type="hidden" id="c-type">
+      <div class="field-row">
+        <div class="mfield"><label>Título</label><input type="text" id="c-title" placeholder="Nombre del título"></div>
+        <div class="mfield"><label>Año</label><input type="text" id="c-year" placeholder="2024"></div>
+      </div>
+      <div class="mfield"><label>Poster URL (auto desde TMDB)</label><input type="text" id="c-poster" placeholder="https://image.tmdb.org/..."></div>
+
+      <!-- Links de reproducción -->
+      <div class="links-header">
+        <div class="links-title">🔗 Links de reproducción</div>
+        <button class="btn sm" onclick="addLink()">+ Agregar link</button>
+      </div>
+      <div id="links-container">
+        <div class="no-links">No hay links todavía. Hacé click en "+ Agregar link".</div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" id="content-save-btn" onclick="saveContent()" style="display:none">💾 Guardar</button>
+      <button class="btn outline" onclick="closeModal('content-modal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════
+
+const TMDB_KEY  = localStorage.getItem('sf_tmdb_key') || '';
+const TMDB_BASE = 'https://api.themoviedb.org/3';
+const TMDB_IMG  = 'https://image.tmdb.org/t/p';
+
+let API_URL    = 'http://localhost:5000';
+let ADMIN_KEY  = '';
+let extendUser = '';
+
+// Precargar API key de TMDB si ya fue guardada
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('sf_tmdb_key');
+  const el = document.getElementById('l-tmdb');
+  if (saved && el) el.value = saved;
+});
+let contentType = 'movie';
+let editingId   = null;
+let linkCount   = 0;
+
+// ════════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════════
+
+async function doLogin() {
+  const url     = document.getElementById('l-api').value.trim().replace(/\/$/,'');
+  const key     = document.getElementById('l-key').value;
+  const tmdbKey = document.getElementById('l-tmdb').value.trim();
+  const err     = document.getElementById('login-err');
+  err.style.display = 'none';
+
+  if (!tmdbKey) {
+    err.textContent = 'Ingresá tu API Key de TMDB (la conseguís gratis en themoviedb.org/settings/api)';
+    err.style.display = 'block';
+    return;
+  }
+
+  try {
+    const r = await fetch(`${url}/admin/users`, { headers: {'X-Admin-Key': key} });
+    if (r.ok) {
+      API_URL = url; ADMIN_KEY = key;
+      localStorage.setItem('sf_tmdb_key', tmdbKey);
+      // Actualizar TMDB_KEY en runtime
+      window._tmdbKey = tmdbKey;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      document.getElementById('api-badge').textContent = url;
+      showPage('dashboard', document.querySelector('.nav-item'));
+    } else {
+      err.textContent = 'Clave incorrecta o servidor no disponible';
+      err.style.display = 'block';
+    }
+  } catch(e) {
+    err.textContent = `No se pudo conectar a: ${url}`;
+    err.style.display = 'block';
+  }
+}
+
+function doLogout() {
+  API_URL = ''; ADMIN_KEY = '';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ════════════════════════════════════════════
+//  NAVEGACIÓN
+// ════════════════════════════════════════════
+
+function showPage(page, el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const pages = { dashboard: renderDashboard, users: renderUsers, movies: renderMovies, series: renderSeries };
+  if (pages[page]) pages[page]();
+}
+
+// ════════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════════
+
+async function renderDashboard() {
+  document.getElementById('main-content').innerHTML = `<div style="color:var(--muted);padding:40px;text-align:center">Cargando...</div>`;
+  try {
+    const [uRes, cRes] = await Promise.all([
+      fetch(`${API_URL}/admin/users`,   {headers:{'X-Admin-Key':ADMIN_KEY}}),
+      fetch(`${API_URL}/admin/content`, {headers:{'X-Admin-Key':ADMIN_KEY}})
+    ]);
+    const uData = await uRes.json();
+    const cData = await cRes.json();
+    const users   = uData.users || [];
+    const content = cData.content || [];
+    const now     = new Date();
+    const active  = users.filter(u => u.active && (!u.expires || new Date(u.expires) >= now)).length;
+    const expired = users.filter(u => u.expires && new Date(u.expires) < now).length;
+    const movies  = content.filter(c => c.type === 'movie').length;
+    const series  = content.filter(c => c.type === 'series').length;
+
+    document.getElementById('main-content').innerHTML = `
+      <div class="stats">
+        <div class="stat s1"><div class="stat-num">${users.length}</div><div class="stat-label">Usuarios totales</div></div>
+        <div class="stat s2"><div class="stat-num">${active}</div><div class="stat-label">Activos</div></div>
+        <div class="stat s3"><div class="stat-num">${movies}</div><div class="stat-label">Películas</div></div>
+        <div class="stat s4"><div class="stat-num">${series}</div><div class="stat-label">Series</div></div>
+      </div>
+      <div class="sec-header"><div class="sec-title">Contenido reciente</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Título</th><th>Tipo</th><th>Links</th><th>Actualizado</th></tr></thead>
+          <tbody>
+            ${content.length ? content.slice(-10).reverse().map(c => `
+              <tr>
+                <td><strong>${c.title || 'Sin título'}</strong></td>
+                <td><span class="badge ${c.type}">${c.type === 'movie' ? 'Película' : 'Serie'}</span></td>
+                <td>${(c.links||[]).length} link(s)</td>
+                <td>${c.updated ? new Date(c.updated).toLocaleDateString('es-AR') : '-'}</td>
+              </tr>`).join('') : '<tr class="empty-row"><td colspan="4">Sin contenido cargado todavía</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    document.getElementById('main-content').innerHTML = `<div style="color:var(--muted);padding:40px;text-align:center">Error al cargar datos</div>`;
+  }
+}
+
+// ════════════════════════════════════════════
+//  USUARIOS
+// ════════════════════════════════════════════
+
+async function renderUsers() {
+  document.getElementById('main-content').innerHTML = `<div style="color:var(--muted);padding:40px;text-align:center">Cargando...</div>`;
+  try {
+    const r = await fetch(`${API_URL}/admin/users`, {headers:{'X-Admin-Key':ADMIN_KEY}});
+    const d = await r.json();
+    const users = d.users || [];
+    const now   = new Date();
+
+    document.getElementById('main-content').innerHTML = `
+      <div class="sec-header">
+        <div class="sec-title">Usuarios (${users.length})</div>
+        <div class="sec-actions">
+          <button class="btn outline" onclick="renderUsers()">↻ Actualizar</button>
+          <button class="btn" onclick="openModal('user-modal')">+ Nuevo usuario</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Usuario</th><th>Nombre</th><th>Estado</th><th>Vencimiento</th><th>Creado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${users.length ? users.map(u => {
+              const exp    = u.expires ? new Date(u.expires) : null;
+              const vencido = exp && exp < now;
+              const status  = !u.active ? 'inactive' : vencido ? 'expired' : 'active';
+              const label   = !u.active ? 'Inactivo' : vencido ? 'Vencido' : 'Activo';
+              return `<tr>
+                <td><strong>${u.username}</strong></td>
+                <td>${u.display_name || '-'}</td>
+                <td><span class="badge ${status}">${label}</span></td>
+                <td>${exp ? exp.toLocaleDateString('es-AR') : 'Sin vencimiento'}</td>
+                <td>${u.created ? new Date(u.created).toLocaleDateString('es-AR') : '-'}</td>
+                <td><div class="actions">
+                  <button class="btn outline sm" onclick="toggleUser('${u.username}',${u.active})">${u.active?'Desactivar':'Activar'}</button>
+                  <button class="btn green-btn sm" onclick="openExtend('${u.username}')">+Días</button>
+                  <button class="btn red-btn sm" onclick="deleteUser('${u.username}')">Borrar</button>
+                </div></td>
+              </tr>`;
+            }).join('') : '<tr class="empty-row"><td colspan="6">Sin usuarios. Creá el primero.</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  } catch(e) { toast('Error al cargar usuarios', true); }
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+async function createUser() {
+  const username    = document.getElementById('u-username').value.trim();
+  const displayName = document.getElementById('u-display').value.trim();
+  const password    = document.getElementById('u-password').value;
+  const days        = document.getElementById('u-days').value;
+  if (!username || !password) return toast('Usuario y contraseña requeridos', true);
+  if (password.length < 6)    return toast('Contraseña mínimo 6 caracteres', true);
+  try {
+    const r = await fetch(`${API_URL}/admin/users`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+      body: JSON.stringify({username, display_name:displayName||username, password, days:days||null})
+    });
+    const d = await r.json();
+    if (r.ok) { toast(`Usuario "${username}" creado`); closeModal('user-modal'); renderUsers(); }
+    else toast(d.error, true);
+  } catch(e) { toast('Error de conexión', true); }
+}
+
+async function deleteUser(username) {
+  if (!confirm(`¿Eliminar a "${username}"? No se puede deshacer.`)) return;
+  try {
+    await fetch(`${API_URL}/admin/users/${username}`, {method:'DELETE',headers:{'X-Admin-Key':ADMIN_KEY}});
+    toast(`"${username}" eliminado`); renderUsers();
+  } catch(e) { toast('Error', true); }
+}
+
+async function toggleUser(username, active) {
+  try {
+    await fetch(`${API_URL}/admin/users/${username}/toggle`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+      body:'{}'
+    });
+    toast(`Usuario ${active?'desactivado':'activado'}`); renderUsers();
+  } catch(e) { toast('Error', true); }
+}
+
+function openExtend(username) {
+  extendUser = username;
+  openModal('extend-modal');
+}
+
+async function doExtend() {
+  const days = parseInt(document.getElementById('ext-days').value);
+  if (!days || days < 1) return toast('Días inválidos', true);
+  try {
+    await fetch(`${API_URL}/admin/users/${extendUser}/extend`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+      body: JSON.stringify({days})
+    });
+    toast(`${days} días agregados a "${extendUser}"`); closeModal('extend-modal'); renderUsers();
+  } catch(e) { toast('Error', true); }
+}
+
+// ════════════════════════════════════════════
+//  CONTENIDO — PELÍCULAS Y SERIES
+// ════════════════════════════════════════════
+
+async function renderMovies() { await renderContent('movie'); }
+async function renderSeries()  { await renderContent('series'); }
+
+async function renderContent(type) {
+  const label = type === 'movie' ? 'Películas' : 'Series';
+  document.getElementById('main-content').innerHTML = `<div style="color:var(--muted);padding:40px;text-align:center">Cargando...</div>`;
+  try {
+    const r = await fetch(`${API_URL}/admin/content`, {headers:{'X-Admin-Key':ADMIN_KEY}});
+    const d = await r.json();
+    const items = (d.content || []).filter(c => c.type === type || (type === 'series' && c.type === 'series'));
+
+    document.getElementById('main-content').innerHTML = `
+      <div class="sec-header">
+        <div class="sec-title">${label} (${items.length})</div>
+        <div class="sec-actions">
+          <button class="btn outline" onclick="render${type==='movie'?'Movies':'Series'}()">↻ Actualizar</button>
+          <button class="btn" onclick="openContentModal('${type}')">+ Agregar ${type==='movie'?'película':'serie'}</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Título</th><th>Año</th><th>TMDB ID</th><th>Links</th><th>Actualizado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${items.length ? items.map(c => `
+              <tr>
+                <td><strong>${c.title || 'Sin título'}</strong></td>
+                <td>${c.year || '-'}</td>
+                <td><code style="font-size:12px;color:var(--muted)">${c.tmdb_id}</code></td>
+                <td>${(c.links||[]).length} link(s)</td>
+                <td>${c.updated ? new Date(c.updated).toLocaleDateString('es-AR') : '-'}</td>
+                <td><div class="actions">
+                  <button class="btn outline sm" onclick="editContent('${type}','${c.tmdb_id}')">✏ Editar</button>
+                  <button class="btn red-btn sm" onclick="deleteContent('${type}','${c.tmdb_id}','${(c.title||'').replace(/'/g,'')}')">Borrar</button>
+                </div></td>
+              </tr>`).join('') : `<tr class="empty-row"><td colspan="6">Sin ${label.toLowerCase()} todavía. Agregá la primera.</td></tr>`}
+          </tbody>
+        </table>
+      </div>`;
+  } catch(e) { toast('Error al cargar contenido', true); }
+}
+
+// ─── Modal contenido ────────────────────────
+
+function openContentModal(type, item = null) {
+  contentType = type;
+  editingId   = null;
+  linkCount   = 0;
+  document.getElementById('content-modal-title').textContent = `${item ? 'Editar' : 'Agregar'} ${type === 'movie' ? 'Película' : 'Serie'}`;
+  document.getElementById('tmdb-search').value    = '';
+  document.getElementById('tmdb-preview').className = 'tmdb-preview';
+  document.getElementById('tmdb-results').innerHTML = '';
+  document.getElementById('content-fields').style.display = 'none';
+  document.getElementById('content-save-btn').style.display = 'none';
+  document.getElementById('links-container').innerHTML = '<div class="no-links">No hay links. Hacé click en "+ Agregar link".</div>';
+  ['c-tmdb-id','c-type','c-title','c-year','c-poster'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  openModal('content-modal');
+}
+
+async function editContent(type, tmdbId) {
+  contentType = type;
+  editingId   = tmdbId;
+  linkCount   = 0;
+  document.getElementById('content-modal-title').textContent = `Editar ${type === 'movie' ? 'Película' : 'Serie'}`;
+  document.getElementById('tmdb-search').value = '';
+  document.getElementById('tmdb-results').innerHTML = '';
+  openModal('content-modal');
+
+  try {
+    const r = await fetch(`${API_URL}/admin/content/${type}/${tmdbId}`, {headers:{'X-Admin-Key':ADMIN_KEY}});
+    const item = await r.json();
+    fillContentFields(tmdbId, item.title, item.year, item.poster, type);
+    // Cargar links existentes
+    document.getElementById('links-container').innerHTML = '';
+    (item.links || []).forEach(l => addLink(l));
+    if (!item.links?.length) document.getElementById('links-container').innerHTML = '<div class="no-links">No hay links. Hacé click en "+ Agregar link".</div>';
+  } catch(e) { toast('Error al cargar', true); }
+}
+
+// ─── TMDB Search ────────────────────────────
+
+async function tmdbSearch() {
+  const query = document.getElementById('tmdb-search').value.trim();
+  if (!query) return;
+  document.getElementById('tmdb-results').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px">Buscando...</div>';
+
+  // Si es número puro → buscar por ID directo
+  if (/^\d+$/.test(query)) {
+    await loadTmdbById(parseInt(query), contentType);
+    document.getElementById('tmdb-results').innerHTML = '';
+    return;
+  }
+
+  // Buscar por nombre
+  try {
+    const type = contentType === 'movie' ? 'movie' : 'tv';
+    const r = await fetch(`${TMDB_BASE}/search/${type}?api_key=${window._tmdbKey || TMDB_KEY}&language=es-AR&query=${encodeURIComponent(query)}`);
+    const d = await r.json();
+    const results = (d.results || []).slice(0,6);
+
+    if (!results.length) {
+      document.getElementById('tmdb-results').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px">Sin resultados</div>';
+      return;
+    }
+
+    document.getElementById('tmdb-results').innerHTML = results.map(item => {
+      const title = item.title || item.name || '';
+      const year  = (item.release_date || item.first_air_date || '').slice(0,4);
+      const thumb = item.poster_path ? `${TMDB_IMG}/w92${item.poster_path}` : '';
+      return `<div onclick="loadTmdbById(${item.id},'${contentType}')"
+        style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg2);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:border-color .15s"
+        onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        ${thumb ? `<img src="${thumb}" style="width:36px;height:54px;object-fit:cover;flex-shrink:0">` : '<div style="width:36px;height:54px;background:var(--surface);flex-shrink:0;display:flex;align-items:center;justify-content:center">🎬</div>'}
+        <div><div style="font-weight:600;font-size:14px">${title}</div><div style="font-size:12px;color:var(--muted)">${year} · ID: ${item.id}</div></div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('tmdb-results').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px">Error al buscar. Verificá tu API key de TMDB.</div>';
+  }
+}
+
+async function loadTmdbById(id, type) {
+  document.getElementById('tmdb-results').innerHTML = '';
+  try {
+    const endpoint = type === 'movie' ? 'movie' : 'tv';
+    const r = await fetch(`${TMDB_BASE}/${endpoint}/${id}?api_key=${window._tmdbKey || TMDB_KEY}&language=es-AR`);
+    if (!r.ok) { toast('ID de TMDB no encontrado', true); return; }
+    const item = await r.json();
+    const title  = item.title || item.name || '';
+    const year   = (item.release_date || item.first_air_date || '').slice(0,4);
+    const poster = item.poster_path ? `${TMDB_IMG}/w342${item.poster_path}` : '';
+    fillContentFields(id, title, year, poster, type);
+  } catch(e) { toast('Error al cargar de TMDB', true); }
+}
+
+function fillContentFields(id, title, year, poster, type) {
+  // Preview
+  const prev  = document.getElementById('tmdb-preview');
+  const thumb = document.getElementById('tmdb-thumb');
+  const pname = document.getElementById('tmdb-pname');
+  const pmeta = document.getElementById('tmdb-pmeta');
+  thumb.src = poster || '';
+  thumb.style.display = poster ? 'block' : 'none';
+  pname.textContent = title;
+  pmeta.textContent = `${year} · ${type === 'movie' ? 'Película' : 'Serie'} · TMDB ID: ${id}`;
+  prev.classList.add('show');
+
+  // Campos
+  document.getElementById('c-tmdb-id').value = id;
+  document.getElementById('c-type').value    = type;
+  document.getElementById('c-title').value   = title;
+  document.getElementById('c-year').value    = year;
+  document.getElementById('c-poster').value  = poster;
+  document.getElementById('content-fields').style.display = 'block';
+  document.getElementById('content-save-btn').style.display = 'inline-block';
+}
+
+// ─── Links ──────────────────────────────────
+
+function addLink(data = {}) {
+  const container = document.getElementById('links-container');
+  const noLinks   = container.querySelector('.no-links');
+  if (noLinks) noLinks.remove();
+
+  const id = linkCount++;
+  const div = document.createElement('div');
+  div.className = 'link-item';
+  div.id = `link-${id}`;
+  div.innerHTML = `
+    <div class="link-item-row">
+      <input type="text" placeholder="Nombre del servidor" value="${data.name||''}" data-field="name">
+      <select data-field="quality">
+        <option value="4K"${data.quality==='4K'?' selected':''}>4K</option>
+        <option value="1080p"${data.quality==='1080p'||!data.quality?' selected':''}>1080p</option>
+        <option value="720p"${data.quality==='720p'?' selected':''}>720p</option>
+        <option value="480p"${data.quality==='480p'?' selected':''}>480p</option>
+        <option value="HD"${data.quality==='HD'?' selected':''}>HD</option>
+        <option value="SD"${data.quality==='SD'?' selected':''}>SD</option>
+      </select>
+      <select data-field="lang">
+        <option value="Latino"${data.lang==='Latino'||!data.lang?' selected':''}>Latino</option>
+        <option value="Español"${data.lang==='Español'?' selected':''}>Español</option>
+        <option value="Subtitulado"${data.lang==='Subtitulado'?' selected':''}>Subtitulado</option>
+        <option value="Inglés"${data.lang==='Inglés'?' selected':''}>Inglés</option>
+      </select>
+      <button class="remove-link" onclick="removeLink(${id})">✕</button>
+    </div>
+    <div class="link-url-row">
+      <input type="url" placeholder="https://link-directo.m3u8 — o — URL del iframe/embed" value="${data.url||''}" data-field="url" style="width:100%">
+    </div>`;
+  container.appendChild(div);
+}
+
+function removeLink(id) {
+  const el = document.getElementById(`link-${id}`);
+  if (el) el.remove();
+  if (!document.querySelectorAll('.link-item').length) {
+    document.getElementById('links-container').innerHTML = '<div class="no-links">No hay links. Hacé click en "+ Agregar link".</div>';
+  }
+}
+
+function getLinks() {
+  const links = [];
+  document.querySelectorAll('.link-item').forEach(item => {
+    const name    = item.querySelector('[data-field="name"]').value.trim();
+    const quality = item.querySelector('[data-field="quality"]').value;
+    const lang    = item.querySelector('[data-field="lang"]').value;
+    const url     = item.querySelector('[data-field="url"]').value.trim();
+    if (url) links.push({ name: name || 'Servidor', quality, lang, url });
+  });
+  return links;
+}
+
+async function saveContent() {
+  const tmdbId = document.getElementById('c-tmdb-id').value;
+  const type   = document.getElementById('c-type').value || contentType;
+  const title  = document.getElementById('c-title').value.trim();
+  const year   = document.getElementById('c-year').value.trim();
+  const poster = document.getElementById('c-poster').value.trim();
+  const links  = getLinks();
+
+  if (!tmdbId || !title) return toast('Buscá y seleccioná un título primero', true);
+
+  try {
+    const r = await fetch(`${API_URL}/admin/content`, {
+      method:'POST', headers:{'Content-Type':'application/json','X-Admin-Key':ADMIN_KEY},
+      body: JSON.stringify({ tmdb_id: tmdbId, type, title, year, poster, links })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      toast(d.message || 'Guardado');
+      closeModal('content-modal');
+      type === 'movie' ? renderMovies() : renderSeries();
+    } else { toast(d.error || 'Error', true); }
+  } catch(e) { toast('Error de conexión', true); }
+}
+
+async function deleteContent(type, tmdbId, title) {
+  if (!confirm(`¿Eliminar "${title}"? Se borrarán todos sus links.`)) return;
+  try {
+    await fetch(`${API_URL}/admin/content/${type}/${tmdbId}`, {method:'DELETE',headers:{'X-Admin-Key':ADMIN_KEY}});
+    toast(`"${title}" eliminado`);
+    type === 'movie' ? renderMovies() : renderSeries();
+  } catch(e) { toast('Error', true); }
+}
+
+// ─── Toast ──────────────────────────────────
+function toast(msg, isErr=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (isErr?' err':'');
+  clearTimeout(window._t);
+  window._t = setTimeout(()=>el.className='', 3200);
+}
+</script>
+</body>
+</html>
