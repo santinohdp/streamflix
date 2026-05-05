@@ -324,7 +324,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 //  ⚙️  CONFIGURACIÓN — EDITÁ ESTOS VALORES
 // ════════════════════════════════════════════
 
-const TMDB_KEY  = 'c605729151d15d09849a034e1aba962f';           // ← Tu API key de themoviedb.org
+const TMDB_KEY  = 'TU_API_KEY_AQUI';           // ← Tu API key de themoviedb.org
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const TMDB_IMG  = 'https://image.tmdb.org/t/p';
 const TMDB_LANG = 'es-AR';
@@ -354,6 +354,25 @@ let updateUrl  = null;
 // ════════════════════════════════════════════
 //  INICIO
 // ════════════════════════════════════════════
+
+// ── Event listeners globales para cards ──────
+function initCardListeners() {
+  const area = document.getElementById('content-area');
+  
+  // Handler unificado para click y touch
+  function handleCardTap(e) {
+    const card = e.target.closest('[data-id]');
+    if (!card) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const id   = card.getAttribute('data-id');
+    const type = card.getAttribute('data-type');
+    if (id && type) openDetailById(parseInt(id), type);
+  }
+  
+  area.addEventListener('click',      handleCardTap, false);
+  area.addEventListener('touchend',   handleCardTap, { passive: false });
+}
 
 window.onload = async () => {
   document.getElementById('inp-api').value = API_URL || 'http://localhost:5000';
@@ -566,6 +585,7 @@ function showEmpty(msg) {
 function renderSections(sections) {
   document.getElementById('content-area').innerHTML =
     sections.map(s => buildSection(s.title, s.items)).join('');
+  initCardListeners();
 }
 
 function buildSection(title, items, grid=false) {
@@ -590,7 +610,7 @@ function buildCard(item) {
   const imgEl  = poster
     ? `<img src="${poster}" alt="${title}" loading="lazy" onerror="this.outerHTML='<div class=\\'card-nop\\'><div class=\\'card-nop-icon\\'>🎬</div><div class=\\'card-nop-text\\'>${title}</div></div>'">`
     : `<div class="card-nop"><div class="card-nop-icon">🎬</div><div class="card-nop-text">${title}</div></div>`;
-  return `<div class="card" onclick="openDetailById(${item.id},'${mtype}')" ontouchend="event.preventDefault();openDetailById(${item.id},'${mtype}')">
+  return `<div class="card" data-id="${item.id}" data-type="${mtype}" role="button">
     ${imgEl}
     <div class="card-overlay">
       <div class="card-name">${title}</div>
@@ -616,6 +636,7 @@ async function doSearch(q) {
     const items = d.results.filter(i => i.media_type !== 'person' && (i.poster_path || i.backdrop_path));
     if (!items.length) { showEmpty(`Sin resultados para "${q}"`); return; }
     renderSections([{ title:`Resultados: "${q}"`, items }]);
+    initCardListeners();
   } catch(e) {
     showEmpty('Error al buscar. Intentá de nuevo.');
   }
