@@ -93,7 +93,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 @media(min-width:460px){.cards-grid{grid-template-columns:repeat(4,1fr)}}
 .card{flex-shrink:0;width:120px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--border);cursor:pointer;position:relative;overflow:hidden;transition:transform .18s,border-color .18s;aspect-ratio:2/3}
 .cards-grid .card{width:100%}
-.card:active{transform:scale(.94);border-color:var(--accent)}
+.card:active{transform:scale(.94);border-color:var(--accent)}.card{cursor:pointer;-webkit-tap-highlight-color:rgba(229,9,20,.2);touch-action:manipulation}
 .card img{width:100%;height:100%;object-fit:cover;display:block}
 .card-nop{width:100%;height:100%;background:var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px}
 .card-nop-icon{font-size:26px}
@@ -342,7 +342,7 @@ const linksCache = {};
 //  ESTADO GLOBAL
 // ════════════════════════════════════════════
 
-let API_URL    = localStorage.getItem('sf_api') || (location.hostname === 'localhost' ? 'http://localhost:5000' : location.origin);
+let API_URL    = localStorage.getItem('sf_api') || 'http://localhost:5000';
 let token      = localStorage.getItem('sf_token');
 let userName   = localStorage.getItem('sf_user');
 let heroItem   = null;
@@ -356,13 +356,7 @@ let updateUrl  = null;
 // ════════════════════════════════════════════
 
 window.onload = async () => {
-  // Clear stale localhost URL from storage when running in production
-  const storedApi = localStorage.getItem('sf_api');
-  if (storedApi && storedApi.includes('localhost') && location.hostname !== 'localhost') {
-    localStorage.removeItem('sf_api');
-    API_URL = location.origin;
-  }
-  document.getElementById('inp-api').value = API_URL;
+  document.getElementById('inp-api').value = API_URL || 'http://localhost:5000';
   if (token) {
     const ok = await verifyToken();
     if (ok) { initApp(); return; }
@@ -596,7 +590,7 @@ function buildCard(item) {
   const imgEl  = poster
     ? `<img src="${poster}" alt="${title}" loading="lazy" onerror="this.outerHTML='<div class=\\'card-nop\\'><div class=\\'card-nop-icon\\'>🎬</div><div class=\\'card-nop-text\\'>${title}</div></div>'">`
     : `<div class="card-nop"><div class="card-nop-icon">🎬</div><div class="card-nop-text">${title}</div></div>`;
-  return `<div class="card" onclick="openDetailById(${item.id},'${mtype}')">
+  return `<div class="card" onclick="openDetailById(${item.id},'${mtype}')" ontouchend="event.preventDefault();openDetailById(${item.id},'${mtype}')">
     ${imgEl}
     <div class="card-overlay">
       <div class="card-name">${title}</div>
