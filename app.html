@@ -12,6 +12,60 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden}
 
+
+/* SELECTOR DE DISENO */
+#design-screen{position:fixed;inset:0;z-index:500;background:radial-gradient(ellipse 120% 80% at 50% -20%,#1c040a 0%,var(--bg) 65%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px}
+.design-logo{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:2px;text-align:center;margin-bottom:8px}
+.design-logo span{color:var(--accent)}
+.design-sub{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:48px}
+.design-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:24px}
+.design-options{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;width:100%;max-width:500px}
+.design-card{flex:1;min-width:160px;max-width:220px;background:var(--surface);border:2px solid var(--border);padding:32px 20px;text-align:center;cursor:pointer;transition:all .25s;border-radius:4px}
+.design-card:hover,.design-card:active{border-color:var(--accent);transform:translateY(-4px)}
+.design-card.selected{border-color:var(--accent);background:rgba(229,9,20,.1)}
+.design-card-icon{font-size:52px;margin-bottom:16px}
+.design-card-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:8px}
+.design-card-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.design-continue{width:100%;max-width:500px;background:var(--accent);color:#fff;border:none;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;cursor:pointer;margin-top:28px;transition:background .2s;display:none}
+.design-continue.show{display:block}
+.design-continue:hover{background:var(--accent2)}
+
+/* SIDEBAR */
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150}
+#sidebar-overlay.open{display:block}
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--bg2);border-right:1px solid var(--border);z-index:151;transform:translateX(-100%);transition:transform .3s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;overflow-y:auto}
+#sidebar.open{transform:translateX(0)}
+.sidebar-header{padding:28px 20px 20px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px}
+.sidebar-logo span{color:var(--accent)}
+.sidebar-user{font-size:13px;color:var(--muted);margin-top:4px}
+.sidebar-section{padding:16px 20px 8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sidebar-item{display:flex;align-items:center;gap:14px;padding:14px 20px;color:var(--text);cursor:pointer;font-size:15px;font-weight:500;transition:background .15s;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.sidebar-item:hover,.sidebar-item:active{background:var(--surface)}
+.sidebar-item .si-icon{font-size:20px;width:24px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:20px;border-top:1px solid var(--border)}
+.sidebar-design-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.sidebar-design-btn:hover{background:var(--accent2)}
+.sidebar-mode-badge{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:11px;padding:2px 10px;margin-top:10px;letter-spacing:1px;text-transform:uppercase}
+
+/* TV MODE */
+body.tv-mode .card{width:200px}
+body.tv-mode .card-name{font-size:13px}
+body.tv-mode .card-year{font-size:11px}
+body.tv-mode .tab{padding:14px 24px;font-size:16px}
+body.tv-mode .navbar{height:72px}
+body.tv-mode .nav-logo{font-size:36px}
+body.tv-mode .prov-item{padding:20px 24px}
+body.tv-mode .prov-name{font-size:18px}
+body.tv-mode .prov-play-btn{padding:12px 24px;font-size:22px}
+body.tv-mode .hero-title{font-size:48px}
+body.tv-mode .hero-btn{padding:14px 32px;font-size:22px}
+body.tv-mode .section-title{font-size:28px}
+body.tv-mode .sidebar-item{padding:18px 24px;font-size:17px}
+body.tv-mode *:focus{outline:3px solid var(--accent);outline-offset:2px}
+body.tv-mode .cards-scroll{gap:14px;padding:0 24px}
+body.tv-mode .hero-banner{height:380px}
+
 /* LOGIN */
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;background:radial-gradient(ellipse 120% 80% at 50% -20%,#1c040a 0%,var(--bg) 65%)}
 .bg-lines{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(229,9,20,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(229,9,20,.04) 1px,transparent 1px);background-size:60px 60px}
@@ -170,6 +224,54 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 </head>
 <body>
 
+
+<!-- SELECTOR DE DISENO -->
+<div id="design-screen">
+  <div class="design-logo">Stream<span>Flix</span></div>
+  <div class="design-sub">Tu entretenimiento sin limites</div>
+  <div class="design-title">Selecciona tu modo de visualizacion</div>
+  <div class="design-options">
+    <div class="design-card" id="dc-phone" onclick="selectDesign('phone')">
+      <div class="design-card-icon">📱</div>
+      <div class="design-card-name">Celular</div>
+      <div class="design-card-desc">Optimizado para pantallas tactiles y moviles</div>
+    </div>
+    <div class="design-card" id="dc-tv" onclick="selectDesign('tv')">
+      <div class="design-card-icon">📺</div>
+      <div class="design-card-name">Television</div>
+      <div class="design-card-desc">Interfaz grande para control remoto y TV</div>
+    </div>
+  </div>
+  <button class="design-continue" id="design-continue-btn" onclick="confirmDesign()">CONTINUAR</button>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">Stream<span>Flix</span></div>
+    <div class="sidebar-user" id="sidebar-user">Usuario</div>
+  </div>
+
+  <div class="sidebar-section">Navegacion</div>
+  <button class="sidebar-item" onclick="switchTabFromSidebar('trending')"><span class="si-icon">🔥</span> Tendencias</button>
+  <button class="sidebar-item" onclick="switchTabFromSidebar('movies')"><span class="si-icon">🎬</span> Peliculas</button>
+  <button class="sidebar-item" onclick="switchTabFromSidebar('series')"><span class="si-icon">📺</span> Series</button>
+  <button class="sidebar-item" onclick="switchTabFromSidebar('top')"><span class="si-icon">⭐</span> Top Rated</button>
+  <button class="sidebar-item" onclick="switchTabFromSidebar('search')"><span class="si-icon">🔍</span> Buscar</button>
+
+  <div class="sidebar-footer">
+    <button class="sidebar-design-btn" onclick="openDesignFromSidebar()">
+      🎨 DISENO
+    </button>
+    <div class="sidebar-mode-badge" id="sidebar-mode-label">Modo: Celular</div>
+    <div style="height:12px"></div>
+    <button class="sidebar-item" style="color:var(--muted);padding:12px 0" onclick="logout()"><span class="si-icon">🚪</span> Cerrar sesion</button>
+  </div>
+</div>
+
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="bg-lines"></div><div class="bg-glow"></div>
@@ -204,11 +306,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 <div id="app">
   <div id="update-banner" onclick="doUpdate()">🔄 Nueva versión disponible — Tocá para actualizar</div>
   <nav class="navbar">
+    <button class="nav-burger" onclick="openSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="nav-logo">Stream<span>Flix</span></div>
     <div class="nav-right">
       <div class="avatar" id="avatar">?</div>
-      <span class="nav-username" id="nav-user"></span>
-      <button class="logout-btn" onclick="logout()">Salir</button>
     </div>
   </nav>
 
@@ -351,6 +454,95 @@ let hls        = null;
 let searchTmr  = null;
 let updateUrl  = null;
 
+
+// ════════════════════════════════════════════
+//  SELECTOR DE DISENO
+// ════════════════════════════════════════════
+
+let currentDesign = localStorage.getItem('sf_design') || null;
+
+function initDesignScreen() {
+  // Si ya eligio un diseno, saltear la pantalla
+  if (currentDesign) {
+    applyDesign(currentDesign);
+    document.getElementById('design-screen').style.display = 'none';
+    return false; // no mostrar
+  }
+  document.getElementById('design-screen').style.display = 'flex';
+  return true; // mostrar
+}
+
+function selectDesign(mode) {
+  currentDesign = mode;
+  document.querySelectorAll('.design-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('dc-' + mode).classList.add('selected');
+  document.getElementById('design-continue-btn').classList.add('show');
+}
+
+function confirmDesign() {
+  if (!currentDesign) return;
+  localStorage.setItem('sf_design', currentDesign);
+  applyDesign(currentDesign);
+  document.getElementById('design-screen').style.display = 'none';
+  // Si ya tiene token, entrar directo
+  if (token) {
+    verifyToken().then(ok => { if (ok) initApp(); });
+  }
+  // Si no, el login ya esta visible
+}
+
+function applyDesign(mode) {
+  if (mode === 'tv') {
+    document.body.classList.add('tv-mode');
+    document.body.classList.remove('phone-mode');
+    updateSidebarModeLabel('Television');
+  } else {
+    document.body.classList.remove('tv-mode');
+    document.body.classList.add('phone-mode');
+    updateSidebarModeLabel('Celular');
+  }
+}
+
+function updateSidebarModeLabel(label) {
+  const el = document.getElementById('sidebar-mode-label');
+  if (el) el.textContent = 'Modo: ' + label;
+}
+
+function openDesignFromSidebar() {
+  closeSidebar();
+  // Mostrar selector de diseno encima de la app
+  const ds = document.getElementById('design-screen');
+  ds.style.display = 'flex';
+  // Marcar el actual
+  if (currentDesign) {
+    document.querySelectorAll('.design-card').forEach(c => c.classList.remove('selected'));
+    const dc = document.getElementById('dc-' + currentDesign);
+    if (dc) dc.classList.add('selected');
+    document.getElementById('design-continue-btn').classList.add('show');
+  }
+}
+
+// ════════════════════════════════════════════
+//  SIDEBAR
+// ════════════════════════════════════════════
+
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.getElementById('sidebar-user').textContent = userName || 'Usuario';
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+function switchTabFromSidebar(tab) {
+  closeSidebar();
+  const tabBtn = document.querySelector(`.tab[onclick*="${tab}"]`);
+  if (tabBtn) switchTab(tab, tabBtn);
+}
+
 // ════════════════════════════════════════════
 //  INICIO
 // ════════════════════════════════════════════
@@ -376,6 +568,9 @@ function initCardListeners() {
 
 window.onload = async () => {
   document.getElementById('inp-api').value = API_URL || 'http://localhost:5000';
+  // Mostrar selector de diseno si no eligio uno aun
+  const showDesign = initDesignScreen();
+  if (showDesign) return; // esperar a que elija diseno antes de continuar
   if (token) {
     const ok = await verifyToken();
     if (ok) { initApp(); return; }
@@ -717,19 +912,43 @@ async function renderDetail(item) {
       provs = d.links || [];
       linksCache[`${mtype}-${item.id}`] = provs;
     }
-    // Providers automáticos — sin anuncios, ordenados por limpieza
+    // Providers automáticos 2025 — más estables
     const isTV = item.media_type === 'tv';
     const autoProvs = [
       {
-        name: 'VidLink',
+        name: '🎬 VidLink',
         quality: 'HD',
         lang: 'Multi',
         url: isTV
-          ? `https://vidlink.pro/tv/${item.id}/1/1`
-          : `https://vidlink.pro/movie/${item.id}`
+          ? `https://vidlink.pro/tv/${item.id}/1/1?primaryColor=e50914&secondaryColor=060810&iconColor=e50914&nextbutton=true`
+          : `https://vidlink.pro/movie/${item.id}?primaryColor=e50914&secondaryColor=060810&iconColor=e50914`
       },
       {
-        name: 'Embed.su',
+        name: '🎬 VidSrc',
+        quality: 'HD',
+        lang: 'Multi',
+        url: isTV
+          ? `https://vidsrc.to/embed/tv/${item.id}/1/1`
+          : `https://vidsrc.to/embed/movie/${item.id}`
+      },
+      {
+        name: '🎬 VidSrc.me',
+        quality: 'HD',
+        lang: 'Multi',
+        url: isTV
+          ? `https://vidsrc.me/embed/tv?tmdb=${item.id}&season=1&episode=1`
+          : `https://vidsrc.me/embed/movie?tmdb=${item.id}`
+      },
+      {
+        name: '🎬 2Embed',
+        quality: 'HD',
+        lang: 'Multi',
+        url: isTV
+          ? `https://www.2embed.cc/embedtvfull/${item.id}/s1/e1`
+          : `https://www.2embed.cc/embed/${item.id}`
+      },
+      {
+        name: '🎬 Embed.su',
         quality: 'HD',
         lang: 'Multi',
         url: isTV
@@ -737,12 +956,28 @@ async function renderDetail(item) {
           : `https://embed.su/embed/movie/${item.id}`
       },
       {
-        name: 'AutoEmbed',
+        name: '🎬 MoviesAPI',
         quality: 'HD',
         lang: 'Multi',
         url: isTV
-          ? `https://autoembed.co/tv/tmdb/${item.id}-1-1`
-          : `https://autoembed.co/movie/tmdb/${item.id}`
+          ? `https://moviesapi.club/tv/${item.id}-1-1`
+          : `https://moviesapi.club/movie/${item.id}`
+      },
+      {
+        name: '🎬 SuperEmbed',
+        quality: 'HD',
+        lang: 'Multi',
+        url: isTV
+          ? `https://multiembed.mov/?video_id=${item.id}&tmdb=1&s=1&e=1`
+          : `https://multiembed.mov/?video_id=${item.id}&tmdb=1`
+      },
+      {
+        name: '🎬 NontonGo',
+        quality: 'HD',
+        lang: 'Multi',
+        url: isTV
+          ? `https://www.nontongo.win/embed/tv/${item.id}/1/1`
+          : `https://www.nontongo.win/embed/movie/${item.id}`
       }
     ];
 
