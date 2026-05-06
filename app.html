@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#060810">
 <title>StreamFlix</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,6 +65,18 @@ body.tv-mode .sidebar-item{padding:18px 24px;font-size:17px}
 body.tv-mode *:focus{outline:3px solid var(--accent);outline-offset:2px}
 body.tv-mode .cards-scroll{gap:14px;padding:0 24px}
 body.tv-mode .hero-banner{height:380px}
+
+/* RESPONSIVE UNIVERSAL */
+html,body{width:100%;height:100%;overflow-x:hidden}
+#design-screen{width:100vw;height:100vh;min-height:100dvh}
+.design-options{width:100%;padding:0 16px}
+.design-card{min-width:140px}
+@media(max-width:360px){.design-logo{font-size:40px}.design-card-icon{font-size:38px}.design-card-name{font-size:18px}}
+@media(min-width:768px){.design-options{max-width:600px}.design-card{min-width:220px;padding:40px 28px}.design-card-icon{font-size:64px}.design-card-name{font-size:28px}.design-card-desc{font-size:14px}}
+@media(min-width:1024px){.design-logo{font-size:72px}.design-title{font-size:28px}.design-continue{font-size:26px;padding:18px}.cards-scroll .card{width:160px}.hero-banner{height:340px}.hero-title{font-size:42px}.section-title{font-size:26px}.tab{font-size:15px;padding:12px 20px}.navbar{height:64px}.nav-logo{font-size:32px}}
+@media(min-width:1280px){.cards-scroll .card{width:180px}.design-card{min-width:260px}}
+@media(min-width:1920px){.cards-scroll .card{width:220px}.hero-banner{height:460px}.hero-title{font-size:56px}.tab{font-size:18px;padding:14px 28px}.navbar{height:80px}.section-title{font-size:32px}}
+@media(orientation:landscape) and (max-height:500px){.design-screen{flex-direction:row;flex-wrap:wrap}.design-sub{display:none}.hero-banner{height:180px}}
 
 /* LOGIN */
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;background:radial-gradient(ellipse 120% 80% at 50% -20%,#1c040a 0%,var(--bg) 65%)}
@@ -427,7 +439,7 @@ body.tv-mode .hero-banner{height:380px}
 //  ⚙️  CONFIGURACIÓN — EDITÁ ESTOS VALORES
 // ════════════════════════════════════════════
 
-const TMDB_KEY  = 'c605729151d15d09849a034e1aba962f';           // ← Tu API key de themoviedb.org
+const TMDB_KEY  = 'TU_API_KEY_AQUI';           // ← Tu API key de themoviedb.org
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const TMDB_IMG  = 'https://image.tmdb.org/t/p';
 const TMDB_LANG = 'es-AR';
@@ -915,70 +927,15 @@ async function renderDetail(item) {
     // Providers automáticos 2025 — más estables
     const isTV = item.media_type === 'tv';
     const autoProvs = [
-      {
-        name: '🎬 VidLink',
-        quality: 'HD',
-        lang: 'Multi',
-        url: isTV
-          ? `https://vidlink.pro/tv/${item.id}/1/1?primaryColor=e50914&secondaryColor=060810&iconColor=e50914&nextbutton=true`
-          : `https://vidlink.pro/movie/${item.id}?primaryColor=e50914&secondaryColor=060810&iconColor=e50914`
-      },
-      {
-        name: '🎬 VidSrc',
-        quality: 'HD',
-        lang: 'Multi',
-        url: isTV
-          ? `https://vidsrc.to/embed/tv/${item.id}/1/1`
-          : `https://vidsrc.to/embed/movie/${item.id}`
-      },
-      {
-        name: '🎬 VidSrc.me',
-        quality: 'HD',
-        lang: 'Multi',
-        url: isTV
-          ? `https://vidsrc.me/embed/tv?tmdb=${item.id}&season=1&episode=1`
-          : `https://vidsrc.me/embed/movie?tmdb=${item.id}`
-      },
-      {
-        name: '🎬 2Embed',
-        quality: 'HD',
-        lang: 'Multi',
-        url: isTV
-          ? `https://www.2embed.cc/embedtvfull/${item.id}/s1/e1`
-          : `https://www.2embed.cc/embed/${item.id}`
-      },
-      {
-        name: '🎬 Embed.su',
-        quality: 'HD',
-        lang: 'Multi',
-        url: isTV
-          ? `https://embed.su/embed/tv/${item.id}/1/1`
-          : `https://embed.su/embed/movie/${item.id}`
-      },
-      {
-        name: '🎬 MoviesAPI',
-        quality: 'HD',
-        lang: 'Multi',
-        url: isTV
-          ? `https://moviesapi.club/tv/${item.id}-1-1`
-          : `https://moviesapi.club/movie/${item.id}`
-      },
-      {
-        name: '🎬 SuperEmbed',
-        quality: 'HD',
-        lang: 'Multi',
-        url: isTV
-          ? `https://multiembed.mov/?video_id=${item.id}&tmdb=1&s=1&e=1`
-          : `https://multiembed.mov/?video_id=${item.id}&tmdb=1`
-      },
-      {
-        name: '🎬 NontonGo',
-        quality: 'HD',
-        lang: 'Multi',
-        url: isTV
-          ? `https://www.nontongo.win/embed/tv/${item.id}/1/1`
-          : `https://www.nontongo.win/embed/movie/${item.id}`
-      }
+      { name:'🎬 VidLink',    quality:'HD', lang:'Multi', url: isTV ? `https://vidlink.pro/tv/${item.id}/1/1?primaryColor=e50914&secondaryColor=060810&iconColor=e50914&nextbutton=true` : `https://vidlink.pro/movie/${item.id}?primaryColor=e50914&secondaryColor=060810&iconColor=e50914` },
+      { name:'🎬 Embed.su',   quality:'HD', lang:'Multi', url: isTV ? `https://embed.su/embed/tv/${item.id}/1/1`   : `https://embed.su/embed/movie/${item.id}` },
+      { name:'🎬 AutoEmbed',  quality:'HD', lang:'Multi', url: isTV ? `https://autoembed.co/tv/tmdb/${item.id}-1-1` : `https://autoembed.co/movie/tmdb/${item.id}` },
+      { name:'🎬 VidSrc',     quality:'HD', lang:'Multi', url: isTV ? `https://vidsrc.to/embed/tv/${item.id}/1/1`  : `https://vidsrc.to/embed/movie/${item.id}` },
+      { name:'🎬 VidSrc.me',  quality:'HD', lang:'Multi', url: isTV ? `https://vidsrc.me/embed/tv?tmdb=${item.id}&season=1&episode=1` : `https://vidsrc.me/embed/movie?tmdb=${item.id}` },
+      { name:'🎬 2Embed',     quality:'HD', lang:'Multi', url: isTV ? `https://www.2embed.cc/embedtvfull/${item.id}/s1/e1` : `https://www.2embed.cc/embed/${item.id}` },
+      { name:'🎬 MoviesAPI',  quality:'HD', lang:'Multi', url: isTV ? `https://moviesapi.club/tv/${item.id}-1-1`   : `https://moviesapi.club/movie/${item.id}` },
+      { name:'🎬 SuperEmbed', quality:'HD', lang:'Multi', url: isTV ? `https://multiembed.mov/?video_id=${item.id}&tmdb=1&s=1&e=1` : `https://multiembed.mov/?video_id=${item.id}&tmdb=1` },
+      { name:'🎬 NontonGo',   quality:'HD', lang:'Multi', url: isTV ? `https://www.nontongo.win/embed/tv/${item.id}/1/1` : `https://www.nontongo.win/embed/movie/${item.id}` }
     ];
 
     // Combinar: providers manuales primero, luego automáticos
@@ -1111,6 +1068,41 @@ function blockRedirectClicks(e) {
 }
 
 function preventNav(e) { e.preventDefault(); e.returnValue = ''; }
+
+
+// ── Manejar boton atras de Android ───────────
+document.addEventListener('backbutton', function(e) {
+  e.preventDefault();
+  // Si el player esta abierto, cerrarlo
+  if (document.getElementById('player-screen').classList.contains('open')) {
+    closePlayer(); return;
+  }
+  // Si el modal de detalle esta abierto, cerrarlo
+  if (document.getElementById('detail-modal').classList.contains('open')) {
+    closeDetail(); return;
+  }
+  // Si el sidebar esta abierto, cerrarlo
+  if (document.getElementById('sidebar').classList.contains('open')) {
+    closeSidebar(); return;
+  }
+  // No cerrar la app — no hacer nada
+}, false);
+
+// Tambien para el WebView de Android via history
+window.addEventListener('popstate', function(e) {
+  if (document.getElementById('player-screen').classList.contains('open')) {
+    closePlayer();
+  } else if (document.getElementById('detail-modal').classList.contains('open')) {
+    closeDetail();
+  } else if (document.getElementById('sidebar').classList.contains('open')) {
+    closeSidebar();
+  }
+  // Pushear de vuelta para no salir
+  history.pushState(null, '', window.location.href);
+});
+
+// Pushear estado inicial para capturar el back
+history.pushState(null, '', window.location.href);
 
 // ─── Toast ────────────────────────────────────
 function toast(msg, isErr=false) {
